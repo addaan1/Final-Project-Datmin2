@@ -11,6 +11,9 @@
 <br/>
 
 **Final Project — Data Mining 2 | Kelompok 8**
+
+<br/>
+
 **Teknologi Sains Data — Universitas Airlangga** 
 
 | NIM | Nama |
