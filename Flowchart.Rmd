@@ -1,0 +1,143 @@
+---
+title: "Flowchart"
+output: html_document
+---
+
+```{r}
+# --- 1. INSTALL LIBRARY TAMBAHAN (JIKA BELUM ADA) ---
+if (!require("DiagrammeRsvg")) install.packages("DiagrammeRsvg")
+if (!require("rsvg")) install.packages("rsvg")
+if (!require("DiagrammeR")) install.packages("DiagrammeR")
+
+library(DiagrammeR)
+library(DiagrammeRsvg)
+library(rsvg)
+
+# --- 2. DEFINISI OUTPUT PATH ---
+# Perhatikan: Backslash (\) diubah menjadi Forward slash (/) agar R bisa membacanya
+output_folder <- "C:/Users/adief/OneDrive/Dokumen/Semester 5/Data Mining 2/Week 14 (Final Project)"
+output_filename <- "pipeline_flowchart.png"
+full_path <- file.path(output_folder, output_filename)
+
+# Pastikan folder tujuan ada, jika tidak buat foldernya
+if (!dir.exists(output_folder)) {
+  dir.create(output_folder, recursive = TRUE)
+}
+
+# --- 3. BUAT FLOWCHART (DISIMPAN KE VARIABEL) ---
+my_graph <- grViz("
+digraph pipeline {
+
+  # --- PENGATURAN UMUM ---
+  graph [layout = dot, rankdir = TB, compound = true, splines = ortho]
+  
+  # Gaya Node Default
+  node [shape = box, 
+        style = 'filled', 
+        fontname = 'Helvetica', 
+        fontsize = 10,
+        fillcolor = '#EDF2F7', 
+        color = '#4A5568']
+  
+  # Gaya Edge Default
+  edge [color = '#718096', penwidth = 1.5, arrowhead = vee]
+
+  # --- 1. DATA INGESTION ---
+  subgraph cluster_data {
+    label = '1. Data Ingestion & Cleaning';
+    style = dashed;
+    color = '#A0AEC0';
+    fontcolor = '#4A5568';
+    
+    raw_audio [label = 'Raw Audio (.mp3)\nDataset', shape = folder, fillcolor = '#FFFAF0']
+    metadata [label = 'Metadata (.csv)', shape = note, fillcolor = '#FFFAF0']
+    cleaning [label = 'Genre Mapping\n(Fixing labels to 9 Classes)', fillcolor = '#FEFCBF']
+    
+    {raw_audio, metadata} -> cleaning
+  }
+
+  # --- 2. AUDIO PROCESSING ---
+  subgraph cluster_audio {
+    label = '2. Audio Preprocessing Pipeline';
+    style = dashed;
+    color = '#A0AEC0';
+    
+    load [label = 'Load Audio\n(torchaudio)', fillcolor = '#C6F6D5']
+    resample [label = 'Resample 16kHz\nConvert to Mono', fillcolor = '#C6F6D5']
+    pad_cut [label = 'Duration Fix\n(Random Crop 5s / Val 30s)', fillcolor = '#C6F6D5']
+    augment [label = 'Augmentation (Train Only)\n(Noise, Pitch, Time Stretch)', style='filled,dashed', fillcolor = '#9AE6B4']
+    
+    cleaning -> load
+    load -> resample
+    resample -> pad_cut
+    pad_cut -> augment
+  }
+
+  # --- 3. FEATURE EXTRACTION ---
+  subgraph cluster_feature {
+    label = '3. Feature Extraction (VRAM Optimized)';
+    style = solid;
+    color = '#4299E1';
+    penwidth = 2;
+    
+    stft [label = 'STFT\n(Short-Time Fourier Transform)', fillcolor = '#BEE3F8']
+    mels [label = 'Mel Filter Bank\n(n_mels = 64, hop = 1024)', fillcolor = '#63B3ED', fontcolor='white']
+    log [label = 'Logarithmic Scaling\n(Convert to dB)', fillcolor = '#3182CE', fontcolor='white']
+    
+    augment -> stft
+    stft -> mels
+    mels -> log
+  }
+
+  # --- 4. MODEL TRAINING & OPTIMIZATION ---
+  subgraph cluster_training {
+    label = '4. Training System & Models';
+    style = dashed;
+    color = '#A0AEC0';
+    
+    # Optimization Node
+    optim [label = 'VRAM Optimization:\n1. Mixed Precision (FP16)\n2. Gradient Accumulation\n3. Cache Cleaning', 
+           shape = note, fillcolor = '#FAF5FF', color='#805AD5']
+    
+    # Parallel Models
+    subgraph cluster_models {
+      label = '';
+      style = invis;
+      rank = same;
+      
+      m1 [label = 'VGGish\nProfessional', fillcolor = '#FED7D7']
+      m2 [label = 'EfficientNet\nAudio', fillcolor = '#FED7D7']
+      m3 [label = 'CRNN\nProfessional', fillcolor = '#FED7D7']
+      m4 [label = 'Musicnn\nProfessional', fillcolor = '#FED7D7']
+      m5 [label = 'CompactCNN\n(Lightweight)', fillcolor = '#FED7D7']
+    }
+    
+    log -> {m1, m2, m3, m4, m5} [lhead=cluster_models]
+    optim -> m1 [style=dotted, label=' applied to']
+  }
+
+  # --- 5. ENSEMBLE & OUTPUT ---
+  subgraph cluster_output {
+    label = '5. Ensemble & Prediction';
+    style = dashed;
+    color = '#A0AEC0';
+    
+    voting [label = 'Ensemble Strategy\n(Average & Weighted Voting)', shape = hexagon, fillcolor = '#FBD38D']
+    output [label = 'Final Prediction\n(9 Music Genres)', shape = oval, fillcolor = '#F6AD55', fontcolor='white', penwidth=2]
+    
+    {m1, m2, m3, m4, m5} -> voting
+    voting -> output
+  }
+}
+")
+
+# --- 4. EKSPOR KE PNG ---
+# Langkah: Graph Object -> SVG String -> PNG File
+cat("Sedang mengekspor gambar...\n")
+
+svg_code <- export_svg(my_graph)
+rsvg_png(charToRaw(svg_code), file = full_path, width = 2000) # Width 2000 agar resolusi tinggi
+
+cat(paste0("✅ Berhasil disimpan di: ", full_path))
+```
+

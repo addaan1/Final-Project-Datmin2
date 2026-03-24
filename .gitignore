@@ -1,0 +1,50 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+
+# Cache directories dan pickle files (bisa sangat besar)
+results/cache/
+**/cache/
+*.pkl
+*.pickle
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+env/
+.env/
+*.env
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+
+# Large audio files (simpan di Google Drive)
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+
+# File model PyTorch — terlalu besar untuk GitHub (>100MB)
+# Download via Google Drive link di README
+*.pth
+
+# Conda
+.conda/

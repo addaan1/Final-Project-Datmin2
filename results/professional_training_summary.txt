@@ -1,0 +1,15 @@
+PROFESSIONAL MUSIC GENRE CLASSIFICATION SYSTEM
+==================================================
+
+SYSTEM CONFIGURATION:
+  Total Dataset Size: 758
+  Fixed Genres: Country, EDM, Folk, Hip Hop, Indie, Pop, R&B, Rock, Soul
+  Actual Genres in Data: Pop, R&B, Hip Hop, EDM, Country, Soul, Rock, Folk, Indie
+  Test Set Size: 114
+  Number of Models Trained: 0
+  Training Epochs: 100
+  Batch Size: 16
+  Sample Rate: 22050 Hz
+  Mel Bands: 128
+
+MODEL PERFORMANCE:
